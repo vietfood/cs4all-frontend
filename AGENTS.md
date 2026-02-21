@@ -12,25 +12,29 @@
 1. `../docs/AGENTS.md` — global prohibitions, shared contracts, current phase
 2. `../docs/DATABASE.md` — full schema and RLS definitions
 3. `../docs/ARCHITECTURE.md` — system interaction flow (read before sweeping changes)
-4. This file — frontend-specific structure and conventions
+4. `docs/BACKEND_USAGE.md` — how the frontend interacts with the backend API
+5. This file — frontend-specific structure and conventions
 
 ---
 
 ## 1. Current Phase
 
-**Currently in: Phase 2 — Authentication & Progress Tracking**
+**Currently in: Phase 3 — Exercise Submission & Human Review Workflow (Backend COMPLETE)**
 
 **Completed in Phase 1 (Separate Content from Frontend):**
-- [x] Designed strict frontmatter schema (`subject`, `chapter`, `order`, `exercise`, `author`, `last_updated`, etc.)
-- [x] Enforced schema in `src/content.config.ts` using Astro's `zod` collections.
-- [x] Created custom Astro Content Layer loader `createGithubLoader` to fetch MDX from the external GitHub repository (`vietfood/cs4all-content`).
-- [x] Cleaned up local content directories (`src/content/note`, `src/content/subject`, `src/content/authors`). Let repository build independently using the custom GitHub loader.
+- [x] Designed strict frontmatter schema.
+- [x] Enforced schema in `src/content.config.ts`.
+- [x] Created custom Astro Content Layer loader `createGithubLoader`.
+- [x] Cleaned up local content directories.
 
-**Remaining to complete Phase 2:**
-- Configure Astro for SSR/Hybrid mode.
-- Setup Auth via Supabase Auth (`@supabase/ssr`) with Google OAuth/Email Magic Link.
-- Initialize database: Supabase (Postgres). Create tables `public.profiles` and `public.user_progress` per `../docs/DATABASE.md`.
-- Connect the existing static checkmark UI to the database table so completion marks update dynamically.
+**Remaining to complete Phase 2 (Frontend Auth):**
+- [ ] Configure Astro for SSR/Hybrid mode.
+- [ ] Setup Auth via Supabase Auth (`@supabase/ssr`) with Google OAuth/Email Magic Link.
+- [ ] Initialize database: Run migrations from `cs4all-backend/supabase/migrations/`.
+- [ ] Connect the existing static checkmark UI to the database table.
+
+**Phase 3 backend is complete — Admin review endpoints are ready.**
+- See `docs/BACKEND_USAGE.md` for the full API reference.
 
 ---
 
@@ -66,6 +70,8 @@ cs4all-frontend/
 └── FRONTEND_PLAN.md
 ```
 
+> **Backend API reference**: See `docs/BACKEND_USAGE.md` for endpoints, auth, TypeScript types, and code examples.
+
 ---
 
 ## 3. Frontend-Specific Technical Guidelines
@@ -89,20 +95,25 @@ cs4all-frontend/
 - Create custom Astro Content Layer loader to fetch MDX from external GitHub repo.
 - Setup GitHub Actions on content repo to trigger frontend rebuilds.
 
-### Phase 2 — Authentication & Progress Tracking (ACTIVE)
+### Phase 2 — Auth, Progress Tracking & Backend MVP Setup
 **Goal:** Let users sign in and track which lessons/exercises they've completed.
 - Backend Integration: Astro in SSR mode.
 - Auth using native Supabase Auth (`@supabase/ssr`).
-- Database: Supabase Postgres. Create `public.profiles` and `public.user_progress`.
+- Database: Supabase Postgres. Run migrations from `cs4all-backend/supabase/migrations/`.
 - Connect the existing checkmark UI to the database table.
-- Progress for exercises is only updated after completion of LLM/Human review grading flow (to be built in Phase 3).
+- Progress for exercises is only updated after completion of Human review grading flow.
+- Backend MVP: ✅ COMPLETE (Phases 2 & 3 done in `cs4all-backend`).
 
-### Phase 3 — Exercise Submission & LLM-Assisted Grading
-**Goal:** Users attempt exercises, get fast LLM feedback, and a final human-reviewed score that feeds a leaderboard.
+### Phase 3 — Exercise Submission & Human Review Workflow
+**Goal:** Users attempt exercises and submit them for manual human review.
 - Exercise submission flow via Frontend -> Supabase `exercise_submissions`.
 - Supabase Webhook triggers FastAPI backend.
-- Backend handles formatting the prompt, invoking the LLM, and writing the score/feedback back to Supabase. Frontend waits for `status` to change.
-- Human review flow: Side-by-side diff in `/admin/review` panel.
+- Human review flow: Side-by-side diff in `/admin/review` panel. Frontend waits for `status` to change to `human_reviewed`.
+
+### Phase 3.5 — LLM-Assisted Grading Integration
+**Goal:** Users attempt exercises, get fast LLM feedback before human review.
+- Backend handles formatting the prompt, invoking the LLM, and writing the score/feedback back to Supabase. 
+- Frontend waits for `status` to change to `ai_graded` and renders initial `llm_score` and `llm_feedback`.
 
 ### Phase 4 — Leaderboard & Community Features
 **Goal:** Recognize learners and contributors, foster community engagement.
@@ -131,3 +142,13 @@ cs4all-frontend/
 **2026-02-21**
 - **What was worked on**: Rewrote the architectural plan to replace SGLang and local LLM inference with Langchain orchestrating commercial LLM APIs. Updated all documentation references including `DEVELOPMENT.md`, `BACKEND.md`, `ARCHITECTURE.md`, and the `AGENTS.md` orchestration files.
 - **Decisions made**: Transitioned from a locally-hosted SGLang model to commercial LLM APIs via Langchain for structured output scoring, reducing infrastructure overhead while maintaining deterministic JSON grading.
+
+**2026-02-21**
+- **What was worked on**: Rewrote the Phased breakdown to split Phase 3 into Human Review (Phase 3) and LLM-Grading (Phase 3.5), allowing progress to start on scaffolding the MVP backend in Phase 2.
+- **Decisions made**: Backend MVP will happen in Phase 2, establishing core structure before LLM complexities are introduced.
+
+**2026-02-22**
+- **What was worked on**: Updated all documentation to reflect Phase 2+3 backend completion.
+- **Files updated**: `docs/ARCHITECTURE.md` (rewritten with current tech stack, mermaid diagrams), `docs/BACKEND.md` (rewritten with all 5 endpoints and maintenance rules), `docs/DEVELOPMENT.md` (Phase 2+3 marked complete), `cs4all-frontend/AGENTS.md` (phase status, reading order, session log).
+- **Files created**: `docs/BACKEND_USAGE.md` (comprehensive frontend API guide with TypeScript types).
+- **Decisions made**: Added `docs/BACKEND_USAGE.md` to the mandatory reading order. Added maintenance rule: backend agents must update `BACKEND_USAGE.md` after every API change.
