@@ -1,0 +1,73 @@
+---
+import Link from '@/components/Link.astro'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { getAllNotes, getSubnotesForParent } from '@/lib/data-utils'
+import { Icon } from 'astro-icon/components'
+
+const { subject, currentPostId } = Astro.props
+
+const allNotes = await getAllNotes()
+const chapters = allNotes.filter(
+  (note) => note.id.startsWith(`${subject}/`) && note.id.split('/').length === 2
+)
+
+chapters.sort((a, b) => {
+  const orderA = a.data.order ?? 999
+  const orderB = b.data.order ?? 999
+  if (orderA !== orderB) return orderA - orderB
+  return a.data.date.valueOf() - b.data.date.valueOf()
+})
+
+const syllabus = await Promise.all(
+  chapters.map(async (chapter) => {
+    const lessons = await getSubnotesForParent(chapter.id)
+    return { chapter, lessons }
+  })
+)
+---
+
+<div
+  id="syllabus-sidebar-container"
+  class="sticky top-20 col-start-3 row-span-1 mr-auto ml-8 hidden h-[calc(100vh-5rem)] w-72 xl:block"
+>
+  <div class="mb-4 font-bold text-lg px-2 text-primary border-b pb-2">Nội dung bài học</div>
+  <ScrollArea
+    client:load
+    className="flex max-h-[calc(100vh-10rem)] flex-col overflow-y-auto"
+  >
+    <div class="px-2 pb-8">
+      <ul class="space-y-4">
+        {syllabus.map(({ chapter, lessons }, index) => {
+          const isChapterActive = currentPostId === chapter.id || lessons.some(l => l.id === currentPostId);
+          
+          return (
+            <li class="space-y-1">
+              <Link
+                href={`/${chapter.id}`}
+                class={`flex items-start gap-2 rounded-md px-2 py-1.5 text-sm font-semibold transition-colors ${currentPostId === chapter.id ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-foreground'}`}
+              >
+                <div class="mt-0.5 text-muted-foreground text-xs font-bold w-4">{index + 1}.</div>
+                <span class="line-clamp-2">{chapter.data.title}</span>
+              </Link>
+              
+              {lessons.length > 0 && (
+                <ul class="ml-4 space-y-1 mt-1 border-l-2 border-muted pl-2">
+                  {lessons.map((lesson, lessonIndex) => (
+                    <li>
+                      <Link
+                        href={`/${lesson.id}`}
+                        class={`flex items-start gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${currentPostId === lesson.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted text-muted-foreground'}`}
+                      >
+                         <span class="line-clamp-2">{lesson.data.title}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </ScrollArea>
+</div>

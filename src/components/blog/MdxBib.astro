@@ -1,0 +1,64 @@
+---
+import { entries } from 'bibtex-parse'
+import fs from 'fs'
+import path from 'path'
+
+interface BibProps {
+    key: string
+    type: string
+    AUTHOR: string
+    YEAR?: number
+    MONTH?: string
+    TITLE: string
+    JOURNAL?: string
+    PUBLISHER?: string
+    BOOKTITLE?: string
+    DOI?: string
+    URL?: string
+}
+
+interface MdxBibProps {
+    source: string
+}
+
+const { source } = Astro.props as MdxBibProps
+
+const bibtexPath = path.join(process.cwd(), 'src', 'references', source)
+const bibtex = fs.readFileSync(bibtexPath, 'utf-8')
+const value = entries(bibtex) as BibProps[]
+---
+
+<div class="">
+    <!-- <div class="border-t border-[var(--footnotes-border-color)]"> -->
+     <div>
+        <ol class="space-y-4 text-sm">
+            {
+                value.map((val, idx) => (
+                    <li id={val.key} class="text-start" aria-label={`${idx}`}>
+                        <div class="flex flex-col gap-y-2">
+                            <span class="font-bold">{`${val.TITLE},`}</span>
+                            <span> {`${val.AUTHOR}`} </span>
+                            {val.BOOKTITLE && (
+                                <>
+                                    <span class="text-muted-foreground italic">
+                                        {`${val.BOOKTITLE},`}
+                                    </span>
+                                </>
+                            )}
+                            <div class="text-muted-foreground">
+                                {val.JOURNAL ? `${val.JOURNAL}, ` : ''}
+                                {val.PUBLISHER ? `${val.PUBLISHER}, ` : ''}
+                                {val.YEAR ? `${val.YEAR} ` : ''}
+                            </div>
+                            {val.URL ? (
+                                <a href={val.URL}>{val.URL}</a>
+                            ) : (
+                                ''
+                            )}{' '}
+                        </div>
+                    </li>
+                ))
+            }
+        </ol>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+---
+import { Video } from '@/components/vendor/video'
+import { MEDIA } from '@/consts'
+---
+
+<div
+  class="relative mt-4 mb-12 flex h-24 justify-between gap-x-2 overflow-hidden select-none"
+>
+  {
+    MEDIA.map((src) => {
+      if (src.endsWith('.mp4') || src.endsWith('.webm')) {
+        return (
+          <Video
+            client:load
+            fileName={src}
+            className="max-h-full w-full rounded-md saturate-50 transition-all will-change-transform hover:saturate-100"
+          />
+        )
+      } else {
+        return (
+          <img
+            src={src}
+            alt={src}
+            class="max-h-full w-auto rounded-md saturate-50 transition-all will-change-transform hover:saturate-100"
+          />
+        )
+      }
+    })
+  }
+</div>

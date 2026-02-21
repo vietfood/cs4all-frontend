@@ -1,0 +1,227 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PostHead from '@/components/PostHead.astro'
+import PostNavigation from '@/components/PostNavigation.astro'
+import SubpostsHeader from '@/components/SubpostsHeader.astro'
+import SyllabusSidebar from '@/components/SyllabusSidebar.astro'
+import TOCHeader from '@/components/TOCHeader.astro'
+import TOCSidebar from '@/components/TOCSidebar.astro'
+import Giscus from '@/components/Giscus.astro'
+import { Button } from '@/components/ui/button'
+import Layout from '@/layouts/Layout.astro'
+import {
+  getAdjacentNotes,
+  getAllNotesAndSubposts,
+  getCombinedReadingTimeForNote,
+  getNoteReadingTime,
+  getParentId,
+  getParentNote,
+  getSubnoteCount,
+  getTOCSectionsForNote,
+  hasSubnotes,
+  isSubpost,
+  parseAuthors,
+} from '@/lib/data-utils'
+import { formatDate } from '@/lib/utils'
+import { Icon } from 'astro-icon/components'
+import { Image } from 'astro:assets'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const posts = await getAllNotesAndSubposts()
+  return posts.map((post) => {
+    const parts = post.id.split('/')
+    const subject = parts[0]
+    const slug = parts.slice(1).join('/')
+    return {
+      params: { subject, slug },
+      props: post,
+    }
+  })
+}
+
+const post = Astro.props
+const currentPostId = Astro.params.subject + '/' + Astro.params.slug
+// Double check ID reconstruction. Astro.props has the post object with correct ID.
+// post.id should be 'prml/1.2' etc.
+// currentPostId derived from params matches post.id.
+
+const { subject } = Astro.params
+
+const { Content, headings } = await render(post)
+const authors = await parseAuthors(post.data.authors ?? [])
+
+const isCurrentSubpost = isSubpost(post.id)
+const navigation = await getAdjacentNotes(post.id)
+const parentPost = isCurrentSubpost ? await getParentNote(post.id) : null
+
+const hasChildPosts = await hasSubnotes(post.id)
+const subpostCount = !isCurrentSubpost
+  ? await getSubnoteCount(post.id)
+  : 0
+const postReadingTime = await getNoteReadingTime(post.id)
+const combinedReadingTime =
+  hasChildPosts && !isCurrentSubpost
+    ? await getCombinedReadingTimeForNote(post.id)
+    : null
+
+const tocSections = await getTOCSectionsForNote(post.id)
+---
+
+<Layout>
+  <PostHead slot="head" post={post} />
+  {
+    (hasChildPosts || isCurrentSubpost) && (
+      <SubpostsHeader
+        slot="subposts-navigation"
+        parentId={isCurrentSubpost ? getParentId(post.id) : post.id}
+        collection="note"
+        postId={post.id}
+      />
+    )
+  }
+  {
+    headings?.length > 0 &&
+      !(
+        isCurrentSubpost &&
+        headings.length === 1 &&
+        headings[0].text === post.data.title
+      ) && <TOCHeader slot="table-of-contents" headings={headings} />
+  }
+
+  <section
+    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-6"
+  >
+    <div class="col-start-2">
+      <Breadcrumbs
+        items={[
+          { href: `/${subject}`, label: subject.toUpperCase(), icon: 'lucide:library' },
+          ...(isCurrentSubpost && parentPost
+            ? [
+                {
+                  href: `/${parentPost.id}`,
+                  label: parentPost.data.title,
+                  icon: 'lucide:book-open',
+                },
+                {
+                  href: `/${post.id}`,
+                  label: post.data.title,
+                  icon: 'lucide:file-text',
+                },
+              ]
+            : [
+                {
+                  href: `/${post.id}`,
+                  label: post.data.title,
+                  icon: 'lucide:book-open-text',
+                },
+              ]),
+        ]}
+      />
+    </div>
+
+    <section class="col-start-2 flex flex-col gap-y-6 text-center">
+      <div class="flex flex-col">
+        <h1
+          class="mb-2 scroll-mt-31 text-2xl leading-tight font-medium sm:text-3xl"
+          id="post-title"
+        >
+          {post.data.title}
+        </h1>
+
+        <div
+          class="text-muted-foreground flex flex-row items-center gap-x-4 text-xs sm:text-sm"
+        >
+          <div class="flex items-center gap-1.5">
+            <Icon name="lucide:clock" class="size-4" />
+            <span>
+              {postReadingTime}
+              {
+                combinedReadingTime &&
+                  combinedReadingTime !== postReadingTime && (
+                    <span class="text-muted-foreground/70">
+                      {' '}
+                      ({combinedReadingTime} tổng)
+                    </span>
+                  )
+              }
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <Icon name="lucide:calendar" class="size-4" />
+            <span>Cập nhật: {formatDate(post.data.date)}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {
+      tocSections.length > 0 && (
+        <TOCSidebar
+          sections={tocSections}
+          currentPostId={post.id}
+          collection="note"
+        />
+      )
+    }
+
+    <article class="prose col-start-2 max-w-none">
+      <Content />
+    </article>
+
+    <SyllabusSidebar
+      subject={subject}
+      currentPostId={post.id}
+    />
+
+    <PostNavigation
+      newerPost={navigation.newer}
+      olderPost={navigation.older}
+      parentPost={isCurrentSubpost ? navigation.parent : undefined}
+      collection="note"
+    />
+
+    <div class="col-start-2">
+      <Giscus />
+    </div>
+  </section>
+
+  <Button
+    variant="outline"
+    size="icon"
+    className="group fixed right-8 bottom-8 z-50 hidden"
+    id="scroll-to-top"
+    title="Scroll to top"
+    aria-label="Scroll to top"
+  >
+    <Icon
+      name="lucide:arrow-up"
+      class="mx-auto size-4 transition-all group-hover:-translate-y-0.5"
+    />
+  </Button>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const scrollToTopButton = document.getElementById('scroll-to-top')
+      const footer = document.querySelector('footer')
+
+      if (scrollToTopButton && footer) {
+        scrollToTopButton.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        })
+
+        window.addEventListener('scroll', () => {
+          const footerRect = footer.getBoundingClientRect()
+          const isFooterVisible = footerRect.top <= window.innerHeight
+
+          scrollToTopButton.classList.toggle(
+            'hidden',
+            window.scrollY <= 300 || isFooterVisible,
+          )
+        })
+      }
+    })
+  </script>
+</Layout>

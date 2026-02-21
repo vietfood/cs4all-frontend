@@ -1,0 +1,42 @@
+---
+import { ThemeMenu } from './vendor/ThemeMenu.tsx'
+---
+
+<script is:inline>
+  function applyTheme() {
+    const themes = ['light', 'dark', 'flexoki-light', 'flexoki-dark']
+    const theme = (() => {
+      const localStorageTheme = localStorage?.getItem('theme') ?? ''
+      if (themes.includes(localStorageTheme)) {
+        return localStorageTheme
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'flexoki-dark'
+      }
+      return 'flexoki-light'
+    })()
+
+    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.classList.remove('scheme-dark', 'scheme-light')
+    document.documentElement.classList.add(
+      theme.includes('dark') ? 'scheme-dark' : 'scheme-light',
+    )
+  }
+
+  // Apply on initial load
+  applyTheme()
+
+  // Apply BEFORE the page swap to prevent flash
+  document.addEventListener('astro:before-swap', (ev) => {
+    const themes = ['light', 'dark', 'flexoki-light', 'flexoki-dark']
+    const theme = localStorage?.getItem('theme') ?? 'dark'
+
+    // Apply theme to the NEW document before it's swapped in
+    ev.newDocument.documentElement.setAttribute('data-theme', theme)
+    ev.newDocument.documentElement.classList.add(
+      theme.includes('dark') ? 'scheme-dark' : 'scheme-light',
+    )
+  })
+</script>
+
+<ThemeMenu client:load />

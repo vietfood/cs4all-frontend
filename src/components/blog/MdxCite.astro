@@ -1,0 +1,6 @@
+---
+import Cite from './Cite.tsx'
+---
+
+{/* @ts-expect-error Astro.props are passed down from MDX */}
+<Cite {...Astro.props} client:load />

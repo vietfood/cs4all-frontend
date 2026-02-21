@@ -1,0 +1,37 @@
+---
+import Link from '@/components/Link.astro'
+import ThemeToggle from '@/components/ThemeToggle.astro'
+import { Button } from '@/components/ui/button'
+import MobileMenu from '@/components/ui/mobile-menu'
+import { DynamicWeightOnHoverText } from '@/components/vendor/dynamic-text'
+import { NAV_LINKS } from '@/consts'
+---
+
+<header transition:persist>
+  <div
+    class="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3"
+  >
+    <Link href="/" class="group flex-none gap-x-2 text-base">
+      🍐 {' '}
+      <DynamicWeightOnHoverText client:load text="cs4all-vn" />
+    </Link>
+    <div class="flex items-center sm:gap-4">
+      <nav class="hidden items-center gap-4 text-sm sm:flex sm:gap-6">
+        {
+          NAV_LINKS.map((item) => (
+            <Link
+              href={item.href}
+              class="text-foreground/60 hover:text-foreground/80 capitalize transition-colors"
+            >
+              <Button variant="ghost" className="text-sm px-2 w-fit">
+                {item.label}
+              </Button>
+            </Link>
+          ))
+        }
+      </nav>
+      <MobileMenu client:load transition:persist />
+      <ThemeToggle transition:persist />
+    </div>
+  </div>
+</header>

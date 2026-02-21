@@ -1,0 +1,163 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllNotes, getSubnotesForParent } from '@/lib/data-utils'
+import { Icon } from 'astro-icon/components'
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const subjects = await getCollection('subject')
+  return subjects.map((subject) => ({
+    params: { subject: subject.id },
+    props: { subject },
+  }))
+}
+
+const { subject } = Astro.props
+const { Content } = await render(subject)
+
+const allNotes = await getAllNotes()
+// Top level notes for this subject
+const chapters = allNotes.filter(
+  (note) =>
+    note.id.startsWith(`${subject.id}/`) && note.id.split('/').length === 2,
+)
+
+// Sort chapters
+chapters.sort((a, b) => {
+  const orderA = a.data.order ?? 999
+  const orderB = b.data.order ?? 999
+  if (orderA !== orderB) return orderA - orderB
+  return a.data.date.valueOf() - b.data.date.valueOf()
+})
+
+const chapterWithLessons = await Promise.all(
+  chapters.map(async (chapter) => {
+    const lessons = await getSubnotesForParent(chapter.id)
+    return { chapter, lessons }
+  }),
+)
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title={subject.data.title} />
+
+  <Breadcrumbs
+    items={[
+      { href: '/', label: 'Home', icon: 'lucide:home' },
+      {
+        href: `/${subject.id}`,
+        label: subject.data.title,
+        icon: 'lucide:book',
+      },
+    ]}
+  />
+
+  <div
+    class="mt-6 mb-6 flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left"
+  >
+    <div class="flex-grow">
+      <h1 class="text-primary mb-15 text-3xl font-extrabold sm:text-4xl">
+        {subject.data.title}
+      </h1>
+      <article class="prose dark:prose-invert max-w-none">
+        <Content />
+      </article>
+    </div>
+  </div>
+
+  <div class="space-y-8">
+    <h2 class="mb-6 border-b pb-4 text-2xl font-bold">
+      Mục lục Nội dung (Syllabus)
+    </h2>
+    <div class="flex flex-col gap-6">
+      {
+        chapterWithLessons.map(({ chapter, lessons }, index) => (
+          <div class="bg-card text-card-foreground overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md">
+            <div class="bg-secondary/50 border-b p-4">
+              <Link
+                href={`/${chapter.id}`}
+                class="group flex items-center justify-between"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full font-semibold transition-colors">
+                    {index + 1}
+                  </div>
+                  <h3 class="group-hover:text-primary text-lg font-bold transition-colors">
+                    {chapter.data.title}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  {lessons.length === 0 ? (
+                    chapter.data.draft ? (
+                      <span class="bg-secondary text-muted-foreground rounded-full border px-2 py-1 text-xs font-medium">
+                        Đang viết ✏️
+                      </span>
+                    ) : (
+                      <Icon
+                        name="lucide:check-circle-2"
+                        class="size-5 text-green-500"
+                      />
+                    )
+                  ) : null}
+                  <Icon
+                    name="lucide:chevron-right"
+                    class="text-muted-foreground group-hover:text-primary transition-colors"
+                  />
+                </div>
+              </Link>
+            </div>
+
+            {lessons.length > 0 && (
+              <div class="flex flex-col">
+                {lessons.map((lesson, lessonIndex) => (
+                  <Link
+                    href={`/${lesson.id}`}
+                    class="group hover:bg-secondary/30 flex items-center gap-4 border-b p-4 transition-colors last:border-0"
+                  >
+                    <div class="text-muted-foreground w-6 text-center text-sm font-medium">
+                      {index + 1}.{lessonIndex + 1}
+                    </div>
+                    <div class="flex-grow">
+                      <div class="group-hover:text-primary font-medium transition-colors">
+                        {lesson.data.title}
+                      </div>
+                      {lesson.data.description && (
+                        <div class="text-muted-foreground mt-1 line-clamp-1 text-sm">
+                          {lesson.data.description}
+                        </div>
+                      )}
+                    </div>
+                    {lesson.data.draft ? (
+                      <div class="w-24 text-right">
+                        <span class="bg-secondary text-muted-foreground rounded-full border px-2 py-1 text-xs font-medium">
+                          Đang viết ✏️
+                        </span>
+                      </div>
+                    ) : (
+                      <div class="w-16 text-right">
+                        <Icon
+                          name="lucide:check-circle-2"
+                          class="ml-auto size-5 text-green-500"
+                        />
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {lessons.length === 0 && (
+              <div class="text-muted-foreground/70 bg-card p-4 pl-14 text-sm italic">
+                Chương này không có bài học nhỏ hơn, hãy click vào tiêu đề để
+                xem nội dung chương!
+              </div>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Layout>

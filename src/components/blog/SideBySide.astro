@@ -1,0 +1,36 @@
+---
+interface Props {
+  reverse?: boolean
+  class?: string
+}
+
+const { reverse = false, class: className } = Astro.props
+---
+
+<div
+  class:list={[
+    'grid grid-cols-1 md:grid-cols-2 gap-6 my-6 items-start',
+    className,
+  ]}
+>
+  <div
+    class:list={[
+      reverse
+        ? 'order-1 md:order-2 md:col-span-1'
+        : 'order-1 md:order-1 md:col-span-1',
+      'flex flex-col justify-center',
+    ]}
+  >
+    <slot name="image" />
+  </div>
+  <div
+    class:list={[
+      reverse
+        ? 'order-2 md:order-1 md:col-span-1'
+        : 'order-2 md:order-2 md:col-span-1',
+      'flex flex-col justify-center',
+    ]}
+  >
+    <slot />
+  </div>
+</div>

@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets'
+
+export interface Props {
+    src: string | ImageMetadata
+    alt: string
+    caption?: string
+    class?: string
+    height?: number
+    width?: number
+}
+
+const { src, alt, caption, class: className, height, width } = Astro.props
+
+const useOptimizedImage = typeof src === 'object' && src !== null
+
+let finalWidth = width
+let finalHeight = height
+
+if (useOptimizedImage) {
+    finalWidth = width || src.width
+    finalHeight = height || src.height
+}
+---
+
+<figure class:list={['flex flex-col items-center justify-center', className]}>
+    {
+        useOptimizedImage ? (
+            <Image
+                src={src}
+                alt={alt}
+                width={finalWidth}
+                height={finalHeight}
+                loading="lazy"
+                sizes="100vw"
+                class:list={[
+                    'h-auto rounded-md border-2 transition',
+                    width === undefined && height === undefined
+                        ? 'h-auto w-full lg:w-5/6'
+                        : '',
+                ]}
+            />
+        ) : (
+            <img
+                src={src as string}
+                alt={alt}
+                width={width}
+                height={height}
+                loading="lazy"
+                class:list={[
+                    'h-auto rounded-md border-2 transition',
+                    width === undefined && height === undefined
+                        ? 'h-auto w-full lg:w-5/6'
+                        : '',
+                ]}
+            />
+        )
+    }
+
+    {
+        caption && (
+            <figcaption class="text-muted-foreground text-sm italic">
+                {caption}
+            </figcaption>
+        )
+    }
+</figure>

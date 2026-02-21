@@ -1,0 +1,30 @@
+---
+export interface Props {
+    src: string
+    caption?: string
+    class?: string
+    height?: number
+    width?: number
+}
+
+const { src, caption, class: className, height, width } = Astro.props
+---
+
+<figure class:list={['flex flex-col items-center justify-center space-y-4', className]}>
+    <iframe
+        src={src as string}
+        width={width}
+        height={height}
+        loading="lazy"
+        class:list={[
+            'rounded-md border-2 transition',
+        ]}
+    />
+    {
+        caption && (
+            <figcaption class="text-muted-foreground text-sm italic">
+                {caption}
+            </figcaption>
+        )
+    }
+</figure>

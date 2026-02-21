@@ -1,0 +1,55 @@
+<div class="giscus mt-10 w-full"></div>
+
+<script is:inline>
+  function getGiscusTheme() {
+    const theme = document.documentElement.getAttribute('data-theme')
+    if (theme && theme.includes('dark')) {
+      return 'dark'
+    }
+    return 'light'
+  }
+
+  function updateGiscusTheme() {
+    const theme = getGiscusTheme()
+    const iframe = document.querySelector('iframe.giscus-frame')
+    if (!iframe) return
+
+    iframe.contentWindow.postMessage(
+      { giscus: { setConfig: { theme } } },
+      'https://giscus.app',
+    )
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === 'attributes' &&
+        mutation.attributeName === 'data-theme'
+      ) {
+        updateGiscusTheme()
+      }
+    })
+  })
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
+</script>
+
+<script
+  src="https://giscus.app/client.js"
+  data-repo="vietfood/cs4all-vn"
+  data-repo-id="R_kgDOOKi6mw"
+  data-category="Announcements"
+  data-category-id="DIC_kwDOOKi6m84CpVs_"
+  data-mapping="pathname"
+  data-strict="0"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="en"
+  data-loading="lazy"
+  crossorigin="anonymous"
+  async></script>

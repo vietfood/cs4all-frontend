@@ -1,0 +1,13 @@
+---
+import '@/styles/latex.css';
+
+interface Props {
+    type: "theorem" | "definition" | "lemma" | "abstract" | "proof" | "definition_vn";
+    title?: string;
+}
+
+const { type, title } = Astro.props;
+---
+<div class={type} title={title}>
+    <slot />
+</div>

@@ -1,0 +1,22 @@
+---
+import { Annotate as AnnotateReact } from './AnnotateReact'
+
+interface Props {
+  type?: 'grammar' | 'style' | 'comment' | 'educational'
+  note: string
+  detail?: string
+  correction?: string
+}
+
+const { type = 'comment', note, detail, correction } = Astro.props
+const slotContent = await Astro.slots.render('default')
+---
+
+<AnnotateReact
+  client:load
+  type={type}
+  note={note}
+  detail={detail}
+  correction={correction}
+  slotContent={slotContent}
+/>
