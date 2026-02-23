@@ -33,7 +33,10 @@ export default defineConfig({
     imageService: true,
     devImageService: 'sharp'
   }),
-  site: 'https://lenguyen.vercel.app',
+  site: 'https://cs4all-vn.vercel.app',
+  security: {
+    checkOrigin: false
+  },
   integrations: [
     expressiveCode({
       themes: ['github-light', 'github-dark'],
