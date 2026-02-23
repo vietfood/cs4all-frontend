@@ -8,6 +8,8 @@ import SyllabusSidebar from '@/components/SyllabusSidebar.astro'
 import TOCHeader from '@/components/TOCHeader.astro'
 import TOCSidebar from '@/components/TOCSidebar.astro'
 import Giscus from '@/components/Giscus.astro'
+import ExerciseSubmission from '@/components/ui/exercise-submission'
+import MarkAsRead from '@/components/ui/mark-as-read'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
 import {
@@ -41,6 +43,8 @@ export async function getStaticPaths() {
   })
 }
 
+export const prerender = true;
+
 const post = Astro.props
 const currentPostId = Astro.params.subject + '/' + Astro.params.slug
 // Double check ID reconstruction. Astro.props has the post object with correct ID.
@@ -67,6 +71,8 @@ const combinedReadingTime =
     : null
 
 const tocSections = await getTOCSectionsForNote(post.id)
+const isExercise = post.data.exercise === true
+const isDraft = post.data.draft === true
 ---
 
 <Layout>
@@ -167,9 +173,29 @@ const tocSections = await getTOCSectionsForNote(post.id)
       )
     }
 
-    <article class="prose col-start-2 max-w-none">
-      <Content />
-    </article>
+    <div class="col-start-2 flex flex-col gap-6">
+      {isDraft && (
+        <div class="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+          <Icon name="lucide:construction" class="size-5 shrink-0" />
+          <div>
+            <p class="font-semibold">Nội dung đang được viết</p>
+            <p class="text-sm opacity-80">Chương/bài này chưa hoàn thành và có thể được cập nhật bất cứ lúc nào.</p>
+          </div>
+        </div>
+      )}
+
+      <article class="prose max-w-none">
+        <Content />
+      </article>
+
+      <div class="flex justify-end">
+        <MarkAsRead client:load lessonId={post.id} />
+      </div>
+
+      {isExercise && (
+        <ExerciseSubmission client:load lessonId={post.id} />
+      )}
+    </div>
 
     <SyllabusSidebar
       subject={subject}

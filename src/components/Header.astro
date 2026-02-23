@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import MobileMenu from '@/components/ui/mobile-menu'
 import { DynamicWeightOnHoverText } from '@/components/vendor/dynamic-text'
 import { NAV_LINKS } from '@/consts'
+import AuthButton from '@/components/AuthButton.astro'
 ---
 
 <header transition:persist>
@@ -32,6 +33,7 @@ import { NAV_LINKS } from '@/consts'
       </nav>
       <MobileMenu client:load transition:persist />
       <ThemeToggle transition:persist />
+      <AuthButton />
     </div>
   </div>
 </header>

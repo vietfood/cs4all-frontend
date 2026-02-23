@@ -1,0 +1,32 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import PageHead from '@/components/PageHead.astro'
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import ProfileStats from '@/components/ui/profile-stats'
+import { getAllNotes } from '@/lib/data-utils'
+
+// Get all lesson metadata at build time to pass to the client component
+const notes = await getAllNotes()
+const allLessons = notes.map(note => ({
+    id: note.id,
+    title: note.data.title,
+    subject: note.data.subject,
+    exercise: note.data.exercise ?? false,
+}))
+---
+
+<Layout class="max-w-3xl">
+    <PageHead slot="head" title="Hồ sơ" />
+
+    <Breadcrumbs
+        items={[
+            { href: '/', label: 'Home', icon: 'lucide:home' },
+            { href: '/profile', label: 'Hồ sơ', icon: 'lucide:user' },
+        ]}
+    />
+
+    <div class="mt-6 mb-16">
+        <h1 class="text-3xl font-extrabold mb-8">Hồ sơ học tập</h1>
+        <ProfileStats client:load allLessons={allLessons} />
+    </div>
+</Layout>

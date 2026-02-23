@@ -6,6 +6,7 @@ import Layout from '@/layouts/Layout.astro'
 import { getAllNotes, getSubnotesForParent } from '@/lib/data-utils'
 import { Icon } from 'astro-icon/components'
 import { getCollection, render } from 'astro:content'
+import ProgressOverlay from '@/components/ui/progress-overlay'
 
 export async function getStaticPaths() {
   const subjects = await getCollection('subject')
@@ -14,6 +15,8 @@ export async function getStaticPaths() {
     props: { subject },
   }))
 }
+
+export const prerender = true;
 
 const { subject } = Astro.props
 const { Content } = await render(subject)
@@ -68,6 +71,9 @@ const chapterWithLessons = await Promise.all(
     </div>
   </div>
 
+  {/* Client-side island to hydrate progress checkmarks */}
+  <ProgressOverlay client:load subject={subject.id} />
+
   <div class="space-y-8">
     <h2 class="mb-6 border-b pb-4 text-2xl font-bold">
       Mục lục Nội dung (Syllabus)
@@ -96,10 +102,16 @@ const chapterWithLessons = await Promise.all(
                         Đang viết ✏️
                       </span>
                     ) : (
-                      <Icon
-                        name="lucide:check-circle-2"
-                        class="size-5 text-green-500"
-                      />
+                      <span data-lesson-id={chapter.id}>
+                        <Icon
+                          name="lucide:circle"
+                          class="progress-icon-empty size-5 text-muted-foreground/30"
+                        />
+                        <Icon
+                          name="lucide:check-circle-2"
+                          class="progress-icon-done hidden size-5 text-green-500"
+                        />
+                      </span>
                     )
                   ) : null}
                   <Icon
@@ -137,10 +149,14 @@ const chapterWithLessons = await Promise.all(
                         </span>
                       </div>
                     ) : (
-                      <div class="w-16 text-right">
+                      <div class="w-16 text-right" data-lesson-id={lesson.id}>
+                        <Icon
+                          name="lucide:circle"
+                          class="progress-icon-empty ml-auto size-5 text-muted-foreground/30"
+                        />
                         <Icon
                           name="lucide:check-circle-2"
-                          class="ml-auto size-5 text-green-500"
+                          class="progress-icon-done ml-auto hidden size-5 text-green-500"
                         />
                       </div>
                     )}
@@ -161,3 +177,12 @@ const chapterWithLessons = await Promise.all(
     </div>
   </div>
 </Layout>
+
+<style is:global>
+  [data-completed="true"] .progress-icon-empty {
+    display: none;
+  }
+  [data-completed="true"] .progress-icon-done {
+    display: block;
+  }
+</style>

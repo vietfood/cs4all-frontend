@@ -1,0 +1,63 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { createSupabase } from '@/lib/supabase'
+import ReviewForm from '@/components/admin/review-form'
+
+const supabase = createSupabase(Astro.cookies, Astro.request)
+const { data: { user } } = await supabase.auth.getUser()
+
+if (!user) {
+  return Astro.redirect('/')
+}
+
+// We need the session's access_token for backend API calls
+const { data: { session } } = await supabase.auth.getSession()
+const accessToken = session?.access_token
+
+if (!accessToken) {
+  return Astro.redirect('/')
+}
+
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
+let submissions = []
+let authError = false
+
+try {
+  const res = await fetch(`${backendUrl}/api/v1/admin/submissions?submission_status=submitted`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (res.status === 403 || res.status === 401) {
+    authError = true
+  } else if (res.ok) {
+    const data = await res.json()
+    submissions = data.submissions || []
+  }
+} catch (e) {
+  console.error("Failed to fetch admin API:", e);
+}
+
+if (authError) {
+  return Astro.redirect('/')
+}
+---
+
+<Layout class="max-w-5xl">
+  <div class="py-12">
+    <h1 class="text-3xl font-bold mb-8">Admin Review Panel</h1>
+    {submissions.length === 0 ? (
+      <div class="bg-card border p-8 rounded-xl text-center text-muted-foreground">
+        No pending submissions to review.
+      </div>
+    ) : (
+      <div class="space-y-12">
+        {submissions.map((sub: any) => (
+          <ReviewForm client:load submission={sub} token={accessToken} backendUrl={backendUrl} />
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>

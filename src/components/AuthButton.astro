@@ -1,0 +1,28 @@
+---
+import { createSupabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import AvatarComponent from '@/components/ui/avatar'
+import LoginDialog from '@/components/ui/login-dialog'
+
+const supabase = createSupabase(Astro.cookies, Astro.request)
+const { data: { user } } = await supabase.auth.getUser()
+---
+
+{
+  user ? (
+    <form action="/api/auth/signout" method="post" class="inline-flex">
+      <Button variant="ghost" type="submit" className="text-sm px-2 gap-2 h-9">
+        <AvatarComponent
+          client:load
+          src={user.user_metadata?.avatar_url}
+          alt={user.user_metadata?.display_name || user.email || 'User'}
+          fallback={user.email?.[0]?.toUpperCase() || 'U'}
+          className="size-6 rounded-full"
+        />
+        <span class="hidden sm:inline-block">Logout</span>
+      </Button>
+    </form>
+  ) : (
+    <LoginDialog client:load />
+  )
+}

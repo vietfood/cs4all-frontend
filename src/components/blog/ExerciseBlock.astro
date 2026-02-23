@@ -1,0 +1,20 @@
+---
+import ExerciseBlockReact from '@/components/ui/exercise-block'
+
+interface Props {
+    id: string
+    title: string
+    lessonId: string
+}
+
+const { id, title, lessonId } = Astro.props
+const slotContent = await Astro.slots.render('default')
+---
+
+<ExerciseBlockReact
+    client:load
+    id={id}
+    title={title}
+    lessonId={lessonId}
+    slotContent={slotContent}
+/>

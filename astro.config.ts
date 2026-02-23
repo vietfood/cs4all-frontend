@@ -23,6 +23,14 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true
+    },
+    imageService: true,
+    devImageService: 'sharp'
+  }),
   site: 'https://lenguyen.vercel.app',
   integrations: [
     expressiveCode({
@@ -72,13 +80,6 @@ export default defineConfig({
     react(),
     sitemap(),
     icon(),
-    vercel({
-      webAnalytics: {
-        enabled: true
-      },
-      imageService: true,
-      devImageService: 'sharp'
-    }),
   ],
   vite: {
     plugins: [

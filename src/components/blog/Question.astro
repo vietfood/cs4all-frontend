@@ -1,0 +1,11 @@
+---
+/**
+ * Question wrapper component for MDX exercises.
+ * Renders its content inside a div with a data-role marker
+ * so ExerciseBlock can identify question vs solution content.
+ */
+---
+
+<div data-exercise-role="question">
+    <slot />
+</div>

@@ -19,7 +19,7 @@
 
 ## 1. Current Phase
 
-**Currently in: Phase 3 — Exercise Submission & Human Review Workflow (Backend COMPLETE)**
+**Currently in: Phase 3.5 — LLM-Assisted Grading Integration (PENDING)**
 
 **Completed in Phase 1 (Separate Content from Frontend):**
 - [x] Designed strict frontmatter schema.
@@ -27,14 +27,15 @@
 - [x] Created custom Astro Content Layer loader `createGithubLoader`.
 - [x] Cleaned up local content directories.
 
-**Remaining to complete Phase 2 (Frontend Auth):**
-- [ ] Configure Astro for SSR/Hybrid mode.
-- [ ] Setup Auth via Supabase Auth (`@supabase/ssr`) with Google OAuth/Email Magic Link.
-- [ ] Initialize database: Run migrations from `cs4all-backend/supabase/migrations/`.
-- [ ] Connect the existing static checkmark UI to the database table.
+**Completed in Phase 2 (Frontend Auth):**
+- [x] Configure Astro for SSR mode (Vercel adapter installed).
+- [x] Setup Auth via Supabase Auth (`@supabase/ssr`) with Magic Link logic and API Endpoint setup.
+- [x] Initialize database: Human executed migrations successfully.
+- [x] Connect the static checkmark UI to the database table dynamically on the curriculum page.
 
-**Phase 3 backend is complete — Admin review endpoints are ready.**
-- See `docs/BACKEND_USAGE.md` for the full API reference.
+**Completed in Phase 3 (Frontend Exercise Submission):**
+- [x] Implement the `ExerciseSubmission` UI to push solutions to `exercise_submissions`.
+- [x] Implement the `admin/review` panel utilizing the Phase 3 backend APIs for side-by-side diff human grading.
 
 ---
 
@@ -43,17 +44,20 @@
 - **Frontend**: Astro (v5) + React (v19) in SSR / Hybrid mode.
 - **Backend**: Async grading and structured LLM inference. (Separate repo: `cs4all-backend` - treat as a black box).
 - **Styling**: Tailwind CSS (v4) + Shadcn/UI
-- **Content**: Content Collections fetched from `vietfood/cs4all-content` using a custom loader. Strict schema validation applied via `src/content.config.ts`. Locally cached in `.content/` during build or fetched via `process.env.CONTENT_DIR`.
+- **Content**: Content Collections fetched from `vietfood/cs4all-content` using a custom loader. Strict schema validation applied via `src/content.config.ts`. Locally cached in `.content/` — auto-clones from GitHub if missing, pulls latest in production builds.
 - **Package Manager**: Use `bun` strictly. Do not use `npm`, `yarn`, or `pnpm`.
 
 **Directory Structure (High-Level)**:
 ```text
 cs4all-frontend/
 ├── AGENTS.md                # This file (frontend-local)
+├── .content/                # Local clone of cs4all-content (git-ignored)
 ├── src/
-│   ├── components/          # Astro & React (Shadcn) Components
+│   ├── components/
+│   │   ├── blog/            # MDX-facing Astro components (Callout, ExerciseBlock, Question, Solution, etc.)
+│   │   └── ui/              # React components (exercise-block, mark-as-read, login-dialog, profile-stats, etc.)
 │   ├── layouts/             # Astro Layouts
-│   ├── pages/               # Astro Routing Pages ([...slug].astro, etc.)
+│   ├── pages/               # Astro Routing Pages ([...slug].astro, profile.astro, admin/review.astro, etc.)
 │   └── content.config.ts    # Schemas and loaders — source of truth for MDX frontmatter schema
 ├── patches/                 # Patch files for dependency fixes
 ├── public/                  # Static assets
@@ -115,11 +119,17 @@ cs4all-frontend/
 - Backend handles formatting the prompt, invoking the LLM, and writing the score/feedback back to Supabase. 
 - Frontend waits for `status` to change to `ai_graded` and renders initial `llm_score` and `llm_feedback`.
 
-### Phase 4 — Leaderboard & Community Features
-**Goal:** Recognize learners and contributors, foster community engagement.
-- Leaderboard ranking average final score across completed human-reviewed exercises.
-- Discussion threads per lesson.
-- LLM-assisted hints using the problem rubric.
+### Phase 4 — Profile, Leaderboard & Community Features
+**Goal:** Personal dashboard, progress tracking, community engagement.
+- Profile page (`/profile`): user stats, per-subject progress, recent submissions.
+- Exercise decomposition: Astro wrappers (`ExerciseBlock.astro`, `Question.astro`, `Solution.astro`) + React interactive component.
+- Per-exercise submissions using `lessonId#exerciseId` pattern.
+- `MarkAsRead` button for lesson completion tracking.
+- Draft banner for `draft: true` content.
+- `LoginDialog` with shadcn Dialog + Sonner toasts.
+- `ProgressOverlay` client-side island for prerendered syllabus pages.
+- ✅ Profile, exercise decomposition, progress, login, draft indicators: COMPLETE.
+- ⏳ Leaderboard, discussion threads, LLM hints: PENDING.
 
 ---
 
@@ -151,4 +161,14 @@ cs4all-frontend/
 - **What was worked on**: Updated all documentation to reflect Phase 2+3 backend completion.
 - **Files updated**: `docs/ARCHITECTURE.md` (rewritten with current tech stack, mermaid diagrams), `docs/BACKEND.md` (rewritten with all 5 endpoints and maintenance rules), `docs/DEVELOPMENT.md` (Phase 2+3 marked complete), `cs4all-frontend/AGENTS.md` (phase status, reading order, session log).
 - **Files created**: `docs/BACKEND_USAGE.md` (comprehensive frontend API guide with TypeScript types).
-- **Decisions made**: Added `docs/BACKEND_USAGE.md` to the mandatory reading order. Added maintenance rule: backend agents must update `BACKEND_USAGE.md` after every API change.
+**2026-02-22**
+- **What was worked on**: Implemented Phase 2 Authentication and Phase 3 Exercise Submission flow in the frontend. 
+- **Files updated**: `astro.config.ts`, `src/pages/[subject]/index.astro`, `src/components/Header.astro`, `ts`, `AGENTS.md`.
+- **Files created**: `src/lib/supabase.ts`, `src/lib/supabase-client.ts`, `src/pages/api/auth/*`, `src/components/AuthButton.astro`, `src/components/ui/exercise-submission.tsx`, `src/components/admin/review-form.tsx`, `src/pages/admin/review.astro`.
+- **Decisions made**: Selected Vercel adapter for SSR due to app routing requirements. Handled both server-side Astro API endpoints and client-side database interactions natively rather than introducing intermediaries. Both Phase 2 and 3 frontend requirements are complete.
+
+**2026-02-22**
+- **What was worked on**: Phase 4 frontend features — exercise decomposition, profile page, progress tracking, login UX, draft indicators, content loader cleanup.
+- **Files created**: `src/components/blog/ExerciseBlock.astro`, `src/components/blog/Question.astro`, `src/components/blog/Solution.astro`, `src/components/ui/exercise-block.tsx`, `src/components/ui/exercise-question.tsx`, `src/components/ui/exercise-solution.tsx`, `src/components/ui/login-dialog.tsx`, `src/components/ui/progress-overlay.tsx`, `src/components/ui/mark-as-read.tsx`, `src/components/ui/profile-stats.tsx`, `src/pages/profile.astro`.
+- **Files updated**: `src/content.config.ts` (simplified loader — `.content/` dir, auto-clone), `src/pages/[subject]/[...slug].astro` (ExerciseSubmission conditional, MarkAsRead button, draft banner), `src/components/AuthButton.astro` (LoginDialog, getSession→getUser), `src/components/ui/exercise-submission.tsx` (.single()→.maybeSingle()), `src/layouts/Layout.astro` (Toaster), `src/pages/admin/review.astro` (getUser+getSession pattern), `.content/note/prml/1-exercise/index.mdx` (ExerciseBlock/Question/Solution wrappers).
+- **Decisions made**: Exercise components use Astro wrapper pattern (MDX imports .astro which handles `client:load` to React). Per-exercise submission via `lessonId#exerciseId`. Content loader simplified to always use `.content/` dir. Profile page uses prerenderable lesson metadata + client-side Supabase queries.

@@ -1,0 +1,11 @@
+---
+/**
+ * Solution wrapper component for MDX exercises.
+ * Renders its content inside a div with a data-role marker
+ * so ExerciseBlock can identify and hide/reveal solution content.
+ */
+---
+
+<div data-exercise-role="solution">
+    <slot />
+</div>

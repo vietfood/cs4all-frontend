@@ -7,6 +7,7 @@ import '@fontsource/ibm-plex-serif'
 import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
+import { Toaster } from '@/components/ui/sonner'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
 
@@ -36,5 +37,6 @@ const { class: className } = Astro.props
       </main>
       <Footer />
     </div>
+    <Toaster client:load />
   </body>
 </html>
