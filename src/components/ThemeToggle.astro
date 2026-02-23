@@ -41,7 +41,7 @@ import { Sun, Moon } from 'lucide-react'
   document.addEventListener('astro:page-load', () => {
     const toggleBtn = document.getElementById('theme-toggle-btn')
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
+      toggleBtn.onclick = () => {
         const isDark = document.documentElement.classList.contains('scheme-dark')
         const newTheme = isDark ? 'light' : 'dark'
         
@@ -52,7 +52,7 @@ import { Sun, Moon } from 'lucide-react'
         document.documentElement.classList.add(
           newTheme === 'dark' ? 'scheme-dark' : 'scheme-light',
         )
-      })
+      }
     }
   })
 </script>
