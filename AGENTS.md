@@ -170,5 +170,20 @@ cs4all-frontend/
 **2026-02-22**
 - **What was worked on**: Phase 4 frontend features — exercise decomposition, profile page, progress tracking, login UX, draft indicators, content loader cleanup.
 - **Files created**: `src/components/blog/ExerciseBlock.astro`, `src/components/blog/Question.astro`, `src/components/blog/Solution.astro`, `src/components/ui/exercise-block.tsx`, `src/components/ui/exercise-question.tsx`, `src/components/ui/exercise-solution.tsx`, `src/components/ui/login-dialog.tsx`, `src/components/ui/progress-overlay.tsx`, `src/components/ui/mark-as-read.tsx`, `src/components/ui/profile-stats.tsx`, `src/pages/profile.astro`.
-- **Files updated**: `src/content.config.ts` (simplified loader — `.content/` dir, auto-clone), `src/pages/[subject]/[...slug].astro` (ExerciseSubmission conditional, MarkAsRead button, draft banner), `src/components/AuthButton.astro` (LoginDialog, getSession→getUser), `src/components/ui/exercise-submission.tsx` (.single()→.maybeSingle()), `src/layouts/Layout.astro` (Toaster), `src/pages/admin/review.astro` (getUser+getSession pattern), `.content/note/prml/1-exercise/index.mdx` (ExerciseBlock/Question/Solution wrappers).
 - **Decisions made**: Exercise components use Astro wrapper pattern (MDX imports .astro which handles `client:load` to React). Per-exercise submission via `lessonId#exerciseId`. Content loader simplified to always use `.content/` dir. Profile page uses prerenderable lesson metadata + client-side Supabase queries.
+
+**2026-02-23**
+- **What was worked on**: Phase 4.5 UI Redesign (DeepWiki Inspiration).
+- **Files updated**: `src/layouts/Layout.astro` (full-width app shell), `src/components/Header.astro` (sticky full-width navbar with tab-style links), `src/components/ThemeToggle.astro` (removed flexoki, native HTML button).
+- **Files removed**: `src/components/vendor/ThemeMenu.tsx`
+- **Decisions made**: Transitioned from a constrained blog layout to a modern learning platform layout. Simplified theme support to just 'light' and 'dark'. Validated mobile menu responsiveness within the new utility icon group.
+
+**2026-02-23**
+- **What was worked on**: Phase 4 Frontend Features — Sparkle-to-Source Reference Panel.
+- **Files updated**: `src/pages/ask.astro` (split-pane layout, client-side highlighting script), `src/components/ui/lesson-chat.tsx` (interactive sparkles, custom events).
+- **Decisions made**: Adopted a split-pane layout to show the chat and the lesson content side-by-side. Used vanilla JS `TreeWalker` to exact-match `[ref:"..."]` text and wrap it in an animated `<mark>` tag. Set the reference panel to an absolute-positioned sliding drawer on mobile.
+
+**2026-02-23**
+- **What was worked on**: Global Configuration — Pure Server-Side Rendering (SSR).
+- **Files updated**: `astro.config.ts`, `src/pages/[subject]/index.astro`, `src/pages/[subject]/[...slug].astro`, `src/pages/ask.astro`
+- **Decisions made**: Resolved the recurring authentication state bugs (where "Log in" showed for authenticated users, and dynamic routes threw `getStaticPaths` errors) by explicitly opting out of Astro's static prerendering on all dynamic pages using `export const prerender = false`. This forces Astro to evaluate the Supabase `Astro.cookies` runtime logic securely on every request.

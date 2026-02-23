@@ -8,17 +8,16 @@ import { Icon } from 'astro-icon/components'
 import { getCollection, render } from 'astro:content'
 import ProgressOverlay from '@/components/ui/progress-overlay'
 
-export async function getStaticPaths() {
-  const subjects = await getCollection('subject')
-  return subjects.map((subject) => ({
-    params: { subject: subject.id },
-    props: { subject },
-  }))
+export const prerender = false;
+
+const { subject: subjectId } = Astro.params;
+const subjects = await getCollection('subject');
+const subject = subjects.find((s) => s.id === subjectId);
+
+if (!subject) {
+  return new Response('Bài viết không tồn tại', { status: 404 });
 }
 
-export const prerender = true;
-
-const { subject } = Astro.props
 const { Content } = await render(subject)
 
 const allNotes = await getAllNotes()

@@ -59,6 +59,9 @@ const note = defineCollection({
       tags: z.array(z.string()).optional(),
       authors: z.array(z.string()).optional(),
       draft: z.boolean().optional(),
+      // Optional LLM grading context — subject/chapter-specific instructions
+      // for the AI grader. Parsed by the backend from raw MDX frontmatter.
+      grading_context: z.string().optional(),
     }),
 })
 

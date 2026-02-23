@@ -30,7 +30,9 @@ export default function ExerciseBlock({ id, title, lessonId, slotContent }: Exer
     const [loading, setLoading] = useState(true)
     const [existingSubmission, setExistingSubmission] = useState<any>(null)
 
-    // Parse the slot HTML to extract question and solution parts
+    // Parse the slot HTML to extract question, solution, and rubric parts.
+    // Rubric is parsed but never rendered — it's machine-readable grading
+    // criteria for the backend LLM grader (see Rubric.astro).
     const { questionHtml, solutionHtml } = React.useMemo(() => {
         const parser = typeof window !== 'undefined' ? new DOMParser() : null
         if (!parser) return { questionHtml: '', solutionHtml: '' }
@@ -38,6 +40,8 @@ export default function ExerciseBlock({ id, title, lessonId, slotContent }: Exer
         const doc = parser.parseFromString(`<div>${slotContent}</div>`, 'text/html')
         const questionEl = doc.querySelector('[data-exercise-role="question"]')
         const solutionEl = doc.querySelector('[data-exercise-role="solution"]')
+        // Rubric is intentionally NOT rendered — backend parses it from raw MDX.
+        // const rubricEl = doc.querySelector('[data-exercise-role="rubric"]')
 
         return {
             questionHtml: questionEl?.innerHTML || '',

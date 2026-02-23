@@ -8,32 +8,35 @@ import { NAV_LINKS } from '@/consts'
 import AuthButton from '@/components/AuthButton.astro'
 ---
 
-<header transition:persist>
+<header transition:persist class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
   <div
-    class="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3"
+    class="flex h-16 items-center justify-between px-6 lg:px-8 max-w-7xl mx-auto"
   >
-    <Link href="/" class="group flex-none gap-x-2 text-base">
-      🍐 {' '}
-      <DynamicWeightOnHoverText client:load text="cs4all-vn" />
-    </Link>
-    <div class="flex items-center sm:gap-4">
-      <nav class="hidden items-center gap-4 text-sm sm:flex sm:gap-6">
+    <div class="flex items-center gap-8">
+      <Link href="/" class="flex items-center gap-x-2 text-lg font-bold hover:opacity-80 transition-opacity">
+        <span class="text-xl">🍐</span>
+        <DynamicWeightOnHoverText client:load text="cs4all-vn" />
+      </Link>
+      <nav class="hidden items-center gap-2 sm:flex">
         {
           NAV_LINKS.map((item) => (
             <Link
               href={item.href}
-              class="text-foreground/60 hover:text-foreground/80 capitalize transition-colors"
+              class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Button variant="ghost" className="text-sm px-2 w-fit">
+              <Button variant="ghost" className="h-9 px-4 rounded-full">
                 {item.label}
               </Button>
             </Link>
           ))
         }
       </nav>
-      <MobileMenu client:load transition:persist />
+    </div>
+    
+    <div class="flex items-center gap-2 sm:gap-4">
       <ThemeToggle transition:persist />
       <AuthButton />
+      <MobileMenu client:load transition:persist />
     </div>
   </div>
 </header>

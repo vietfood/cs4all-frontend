@@ -1,0 +1,59 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import LessonChat from '@/components/ui/lesson-chat'
+import ReferencePanel from '@/components/ui/reference-panel'
+import { getCollection, render } from 'astro:content'
+
+export const prerender = false;
+
+const lessonId = Astro.url.searchParams.get('lesson') || ''
+const title = Astro.url.searchParams.get('title') || 'Bài học'
+const initialQuestion = Astro.url.searchParams.get('q') || undefined
+
+let ContentComponent = null
+let anchorMap = []
+if (lessonId) {
+  const notes = await getCollection('note')
+  const note = notes.find((n) => n.id === lessonId)
+  if (note) {
+    const { Content, remarkPluginFrontmatter } = await render(note)
+    ContentComponent = Content
+    anchorMap = remarkPluginFrontmatter?.anchorMap || []
+  }
+}
+---
+
+<Layout fullWidth={true} class="w-full overflow-hidden">
+  <div id="ask-page-container" class="w-full h-[calc(100vh-64px)] flex flex-col md:flex-row overflow-hidden relative">
+    {/* Left Pane: Chat */}
+    <div class="flex-1 flex flex-col min-h-0 bg-card relative z-10 w-full md:w-1/2 md:border-r shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)]">
+      {lessonId ? (
+        <LessonChat
+          client:load
+          lessonId={lessonId}
+          lessonTitle={title}
+          initialQuestion={initialQuestion}
+          anchorMap={anchorMap}
+        />
+      ) : (
+        <div class="flex flex-col items-center justify-center py-20 text-center h-full">
+          <p class="text-muted-foreground">Không tìm thấy bài học. Vui lòng quay lại và thử lại.</p>
+          <a href="/" class="mt-4 text-primary hover:underline">← Trang chủ</a>
+        </div>
+      )}
+    </div>
+
+    {/* Right Pane: Reference Panel (Lesson Content) */}
+    {ContentComponent && (
+      <ReferencePanel client:load anchorMap={anchorMap}>
+         <ContentComponent />
+      </ReferencePanel>
+    )}
+  </div>
+</Layout>
+
+<style>
+  #ask-page-container {
+    min-height: calc(100vh - 80px);
+  }
+</style>

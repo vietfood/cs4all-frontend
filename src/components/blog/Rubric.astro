@@ -1,0 +1,19 @@
+---
+/**
+ * Rubric wrapper component for MDX exercises.
+ * Renders its content inside a hidden div with a data-role marker
+ * so the backend can parse grading criteria from the raw MDX.
+ *
+ * This component is NOT rendered visually on the page — it serves
+ * purely as machine-readable grading metadata for the LLM grader.
+ *
+ * Usage in MDX:
+ *   <Rubric hidden>
+ *     {"criteria": [{"points": 2, "description": "..."}]}
+ *   </Rubric>
+ */
+---
+
+<div data-exercise-role="rubric" hidden>
+    <slot />
+</div>

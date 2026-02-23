@@ -17,6 +17,8 @@ import rehypeDocument from 'rehype-document'
 import remarkGfm from 'remark-gfm'
 import remarkBreaks from 'remark-breaks'
 
+import { rehypeAnchorMap } from './src/plugins/rehype-anchor-map'
+
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 
@@ -119,6 +121,7 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
+      rehypeAnchorMap,
       [
         rehypePrettyCode,
         {

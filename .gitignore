@@ -7,9 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 .env
 .env.production
+.env.local
 .DS_Store
 .idea/
 teaser.pptx
 ~$teaser.pptx
 .vercel
-.content/
+.content

@@ -1,25 +1,25 @@
 ---
-import { ThemeMenu } from './vendor/ThemeMenu.tsx'
+import { Button } from '@/components/ui/button'
+import { Sun, Moon } from 'lucide-react'
 ---
 
 <script is:inline>
   function applyTheme() {
-    const themes = ['light', 'dark', 'flexoki-light', 'flexoki-dark']
     const theme = (() => {
       const localStorageTheme = localStorage?.getItem('theme') ?? ''
-      if (themes.includes(localStorageTheme)) {
+      if (['light', 'dark'].includes(localStorageTheme)) {
         return localStorageTheme
       }
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'flexoki-dark'
+        return 'dark'
       }
-      return 'flexoki-light'
+      return 'light'
     })()
 
     document.documentElement.setAttribute('data-theme', theme)
     document.documentElement.classList.remove('scheme-dark', 'scheme-light')
     document.documentElement.classList.add(
-      theme.includes('dark') ? 'scheme-dark' : 'scheme-light',
+      theme === 'dark' ? 'scheme-dark' : 'scheme-light',
     )
   }
 
@@ -28,15 +28,37 @@ import { ThemeMenu } from './vendor/ThemeMenu.tsx'
 
   // Apply BEFORE the page swap to prevent flash
   document.addEventListener('astro:before-swap', (ev) => {
-    const themes = ['light', 'dark', 'flexoki-light', 'flexoki-dark']
     const theme = localStorage?.getItem('theme') ?? 'dark'
 
     // Apply theme to the NEW document before it's swapped in
     ev.newDocument.documentElement.setAttribute('data-theme', theme)
     ev.newDocument.documentElement.classList.add(
-      theme.includes('dark') ? 'scheme-dark' : 'scheme-light',
+      theme === 'dark' ? 'scheme-dark' : 'scheme-light',
     )
+  })
+
+  // Set up toggle handler
+  document.addEventListener('astro:page-load', () => {
+    const toggleBtn = document.getElementById('theme-toggle-btn')
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('scheme-dark')
+        const newTheme = isDark ? 'light' : 'dark'
+        
+        localStorage.setItem('theme', newTheme)
+        
+        document.documentElement.setAttribute('data-theme', newTheme)
+        document.documentElement.classList.remove('scheme-dark', 'scheme-light')
+        document.documentElement.classList.add(
+          newTheme === 'dark' ? 'scheme-dark' : 'scheme-light',
+        )
+      })
+    }
   })
 </script>
 
-<ThemeMenu client:load />
+<button type="button" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground size-8" id="theme-toggle-btn" title="Chuyển đổi giao diện">
+  <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+  <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+  <span class="sr-only">Toggle theme</span>
+</button>

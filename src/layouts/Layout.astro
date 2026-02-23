@@ -13,9 +13,10 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   class?: string
+  fullWidth?: boolean
 }
 
-const { class: className } = Astro.props
+const { class: className, fullWidth = false } = Astro.props
 ---
 
 <!doctype html>
@@ -23,19 +24,23 @@ const { class: className } = Astro.props
   <Head>
     <slot name="head" />
   </Head>
-  <body>
-    <div class="flex h-fit min-h-screen flex-col gap-y-6">
-      <div class="bg-background/50 z-50 divide-y xl:divide-none">
-        <Header />
+  <body class={cn(fullWidth && 'overflow-hidden')}>
+    <div class={cn("flex min-h-screen flex-col bg-background", fullWidth && 'h-screen')}>
+      <Header />
+      <div class={cn("flex-1 w-full relative flex flex-col min-h-0", !fullWidth && "px-4 md:px-8 py-8")}>
         <slot name="subposts-navigation" />
         <slot name="table-of-contents" />
-      </div>
-      <main class="grow">
-        <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
+        <main class={cn('grow flex flex-col w-full h-full min-h-0', !fullWidth && 'mx-auto gap-y-6', className || (!fullWidth ? 'max-w-7xl' : ''))}>
           <slot />
+        </main>
+      </div>
+      {!fullWidth && (
+        <div class="w-full border-t mt-auto">
+          <div class="mx-auto w-full px-4 md:px-8" class:list={[className || 'max-w-7xl']}>
+            <Footer />
+          </div>
         </div>
-      </main>
-      <Footer />
+      )}
     </div>
     <Toaster client:load />
   </body>
