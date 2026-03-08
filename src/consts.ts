@@ -11,6 +11,8 @@ export const SITE: Site = {
   postsPerPage: 3,
 }
 
+export const ENABLE_BACKEND = false;
+
 export const NAV_LINKS: SocialLink[] = [
   {
     href: '/#subjects',

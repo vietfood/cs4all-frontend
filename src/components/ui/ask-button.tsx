@@ -1,6 +1,7 @@
 import React from 'react'
 import { MessageCircleQuestion } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ENABLE_BACKEND } from '@/consts'
 
 interface AskButtonProps {
     lessonId: string
@@ -12,6 +13,8 @@ interface AskButtonProps {
  * Navigates to /ask?lesson={lessonId}&title={title} when clicked.
  */
 export default function AskButton({ lessonId, title }: AskButtonProps) {
+    if (!ENABLE_BACKEND) return null;
+
     const handleClick = () => {
         const params = new URLSearchParams({
             lesson: lessonId,

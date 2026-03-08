@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
+import { ENABLE_BACKEND } from '@/consts'
 import {
     BookOpen,
     Trophy,
@@ -41,6 +42,20 @@ export default function ProfileStats({
     const [progress, setProgress] = useState<ProgressItem[]>([])
     const [submissions, setSubmissions] = useState<SubmissionItem[]>([])
     const [expandedSubject, setExpandedSubject] = useState<string | null>(null)
+
+    if (!ENABLE_BACKEND) {
+        return (
+            <div className="rounded-xl border bg-card p-12 text-center">
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
+                    <UserIcon className="size-6 text-muted-foreground" />
+                </div>
+                <h2 className="text-xl font-bold mb-2">Hồ sơ cá nhân đang bảo trì</h2>
+                <p className="text-muted-foreground">
+                    Tính năng theo dõi tiến độ học tập và hồ sơ hiện đang tạm thời bảo trì.
+                </p>
+            </div>
+        )
+    }
 
     const supabase = getSupabaseBrowserClient()
 
@@ -245,10 +260,10 @@ export default function ProfileStats({
                                         </td>
                                         <td className="px-4 py-3">
                                             <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${sub.status === 'human_reviewed'
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                    : sub.status === 'ai_graded'
-                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                                                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                : sub.status === 'ai_graded'
+                                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                                                 }`}>
                                                 {sub.status === 'human_reviewed' ? (
                                                     <><CheckCircle2 className="size-3" /> Đã chấm</>

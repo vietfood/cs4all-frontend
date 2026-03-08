@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client'
+import { ENABLE_BACKEND } from '@/consts'
 
 /**
  * Client-side React island that fetches user_progress and decorates
@@ -12,6 +13,8 @@ export default function ProgressOverlay({ subject }: { subject: string }) {
     const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
 
     useEffect(() => {
+        if (!ENABLE_BACKEND) return;
+
         async function fetchProgress() {
             const supabase = getSupabaseBrowserClient()
             const { data: { session } } = await supabase.auth.getSession()

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
+import { ENABLE_BACKEND } from '@/consts'
 
 interface FeedbackItem {
     criterion: string
@@ -10,6 +11,8 @@ interface FeedbackItem {
 }
 
 export default function ExerciseSubmission({ lessonId }: { lessonId: string }) {
+    if (!ENABLE_BACKEND) return null;
+
     const [content, setContent] = useState('')
     const [status, setStatus] = useState<'pending' | 'submitted' | 'ai_graded' | 'human_reviewed'>('pending')
     const [feedback, setFeedback] = useState<FeedbackItem[] | null>(null)

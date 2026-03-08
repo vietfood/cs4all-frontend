@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Circle, Loader2 } from 'lucide-react'
+import { ENABLE_BACKEND } from '@/consts'
 
 interface MarkAsReadProps {
     lessonId: string
@@ -12,6 +13,8 @@ interface MarkAsReadProps {
  * Toggles the `user_progress` row status between 'completed' and removal.
  */
 export default function MarkAsRead({ lessonId }: MarkAsReadProps) {
+    if (!ENABLE_BACKEND) return null;
+
     const [completed, setCompleted] = useState(false)
     const [loading, setLoading] = useState(true)
     const [toggling, setToggling] = useState(false)
@@ -83,8 +86,8 @@ export default function MarkAsRead({ lessonId }: MarkAsReadProps) {
             onClick={toggle}
             disabled={toggling}
             className={`gap-2 transition-all duration-200 ${completed
-                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-                    : 'hover:border-green-500 hover:text-green-600'
+                ? 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+                : 'hover:border-green-500 hover:text-green-600'
                 }`}
         >
             {toggling ? (
