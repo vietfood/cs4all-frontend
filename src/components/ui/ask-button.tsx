@@ -28,10 +28,10 @@ export default function AskButton({ lessonId, title }: AskButtonProps) {
             onClick={handleClick}
             size="lg"
             className="group gap-2 rounded-full shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105"
-            title="Hỏi AI về bài học này"
+            title="Ask AI about this lesson"
         >
             <MessageCircleQuestion className="size-5 transition-transform group-hover:rotate-12" />
-            <span className="hidden sm:inline">Hỏi AI</span>
+            <span className="hidden sm:inline">Ask AI</span>
         </Button>
     )
 }

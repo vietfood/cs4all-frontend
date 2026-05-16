@@ -36,7 +36,7 @@ export const prerender = false;
 const { subject, slug } = Astro.params
 
 if (!subject || !slug) {
-  return new Response('Bài viết không hợp lệ', { status: 404 })
+  return new Response('Invalid post', { status: 404 })
 }
 
 const currentPostId = `${subject}/${slug}`
@@ -45,7 +45,7 @@ const posts = await getAllNotesAndSubposts()
 const post = posts.find((p) => p.id === currentPostId)
 
 if (!post) {
-  return new Response('Bài viết không tồn tại', { status: 404 })
+  return new Response('Post not found', { status: 404 })
 }
 
 const { Content, headings } = await render(post)
@@ -70,7 +70,7 @@ const isExercise = post.data.exercise === true
 const isDraft = post.data.draft === true
 ---
 
-<Layout>
+<Layout class="max-w-[90rem]">
   <PostHead slot="head" post={post} />
   {
     (hasChildPosts || isCurrentSubpost) && (
@@ -92,7 +92,7 @@ const isDraft = post.data.draft === true
   }
 
   <section
-    class="grid grid-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_280px] gap-x-8 gap-y-6"
+    class="grid grid-[minmax(0px,1fr)_min(calc(var(--breakpoint-lg)-2rem),100%)_minmax(0px,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_280px] gap-x-8 gap-y-6"
   >
     <div class="col-start-2">
       <Breadcrumbs
@@ -143,7 +143,7 @@ const isDraft = post.data.draft === true
                   combinedReadingTime !== postReadingTime && (
                     <span class="text-muted-foreground/70">
                       {' '}
-                      ({combinedReadingTime} tổng)
+                      ({combinedReadingTime} total)
                     </span>
                   )
               }
@@ -152,7 +152,7 @@ const isDraft = post.data.draft === true
 
           <div class="flex items-center gap-1.5">
             <Icon name="lucide:calendar" class="size-4" />
-            <span>Cập nhật: {formatDate(post.data.date)}</span>
+            <span>Updated: {formatDate(post.data.date)}</span>
           </div>
         </div>
       </div>
@@ -169,8 +169,8 @@ const isDraft = post.data.draft === true
         <div class="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
           <Icon name="lucide:construction" class="size-5 shrink-0" />
           <div>
-            <p class="font-semibold">Nội dung đang được viết</p>
-            <p class="text-sm opacity-80">Chương/bài này chưa hoàn thành và có thể được cập nhật bất cứ lúc nào.</p>
+            <p class="font-semibold">Content in progress</p>
+            <p class="text-sm opacity-80">This chapter/lesson is not finished and may be updated at any time.</p>
           </div>
         </div>
       )}
@@ -220,8 +220,8 @@ const isDraft = post.data.draft === true
       size="icon"
       className="group hidden shadow-lg"
       id="scroll-to-top"
-      title="Quay lên đầu trang"
-      aria-label="Quay lên"
+      title="Back to top"
+      aria-label="Back to top"
     >
       <Icon
         name="lucide:arrow-up"

@@ -97,7 +97,7 @@ export default function MarkAsRead({ lessonId }: MarkAsReadProps) {
             ) : (
                 <Circle className="size-4" />
             )}
-            {completed ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}
+            {completed ? 'Completed' : 'Mark as completed'}
         </Button>
     )
 }

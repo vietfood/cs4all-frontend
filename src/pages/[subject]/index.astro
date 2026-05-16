@@ -15,7 +15,7 @@ const subjects = await getCollection('subject');
 const subject = subjects.find((s) => s.id === subjectId);
 
 if (!subject) {
-  return new Response('Bài viết không tồn tại', { status: 404 });
+  return new Response('Post not found', { status: 404 });
 }
 
 const { Content } = await render(subject)
@@ -75,7 +75,7 @@ const chapterWithLessons = await Promise.all(
 
   <div class="space-y-8">
     <h2 class="mb-6 border-b pb-4 text-2xl font-bold">
-      Mục lục Nội dung (Syllabus)
+      Syllabus
     </h2>
     <div class="flex flex-col gap-6">
       {
@@ -98,7 +98,7 @@ const chapterWithLessons = await Promise.all(
                   {lessons.length === 0 ? (
                     chapter.data.draft ? (
                       <span class="bg-secondary text-muted-foreground rounded-full border px-2 py-1 text-xs font-medium">
-                        Đang viết ✏️
+                        In progress ✏️
                       </span>
                     ) : (
                       <span data-lesson-id={chapter.id}>
@@ -144,7 +144,7 @@ const chapterWithLessons = await Promise.all(
                     {lesson.data.draft ? (
                       <div class="w-24 text-right">
                         <span class="bg-secondary text-muted-foreground rounded-full border px-2 py-1 text-xs font-medium">
-                          Đang viết ✏️
+                          In progress ✏️
                         </span>
                       </div>
                     ) : (
@@ -166,8 +166,7 @@ const chapterWithLessons = await Promise.all(
 
             {lessons.length === 0 && (
               <div class="text-muted-foreground/70 bg-card p-4 pl-14 text-sm italic">
-                Chương này không có bài học nhỏ hơn, hãy click vào tiêu đề để
-                xem nội dung chương!
+                This chapter has no sub-lessons. Click the title to view the chapter content.
               </div>
             )}
           </div>
